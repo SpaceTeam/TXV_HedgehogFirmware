@@ -113,6 +113,7 @@ codes:
         SERVO                   0x50
         UART                    0x60
         SPEAKER                 0x70
+        ST_THRUST_REQ			0x93
     reply opcodes:
         VERSION_REP             0x02
         EMERGENCY_REP           0x07
@@ -130,6 +131,7 @@ codes:
         IMU_ACCEL_REP           0xA3
         IMU_POSE_REP            0xA4
         DIGITAL_REP             0xB1
+        ST_THRUST_REP			0x94
     update opcodes:
         SHUTDOWN                0x03
         EMERGENCY_STOP          0x04

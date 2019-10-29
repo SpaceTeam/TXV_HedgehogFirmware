@@ -151,8 +151,8 @@ hcp_cmd_t hcp_cmds[256] = {
 	{HCP_UNUSED},																		// 144
 	{HCP_UNUSED},																		// 145
 	{HCP_UNUSED},																		// 146
-	{HCP_UNUSED},																		// 147
-	{HCP_UNUSED},																		// 148
+	{HCP_ST_THRUST_REQ, 0, 0, hcp_handler_st},											// 147 0x93
+	{HCP_ST_THRUST_REP, 0, 9, NULL},													// 148 0x94
 	{HCP_UNUSED},																		// 149
 	{HCP_UNUSED},																		// 150
 	{HCP_UNUSED},																		// 151

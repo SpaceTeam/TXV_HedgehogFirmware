@@ -24,6 +24,7 @@
 #define HCP_SERVO           	0x50
 #define HCP_UART          		0x60
 #define HCP_SPEAKER				0x70
+#define HCP_ST_THRUST_REQ		0x93
 
 //replies to RPi
 #define HCP_VERS_REP			0x02
@@ -42,6 +43,7 @@
 #define HCP_IMU_ACCEL_REP      	0xA3
 #define HCP_IMU_POSE_REP      	0xA4
 #define HCP_DIGITAL_REP     	0xB1
+#define HCP_ST_THRUST_REP		0x94
 
 //updates to RPi
 #define HCP_SHUTDOWN			0x03
