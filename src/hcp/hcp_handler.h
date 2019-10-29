@@ -17,6 +17,7 @@ void hcp_handler_servo(hcp_conn_t conn, uint8_t opcode, size_t payloadLength);
 void hcp_handler_uart(hcp_conn_t conn, uint8_t opcode, size_t payloadLength);
 void hcp_handler_speaker(hcp_conn_t conn, uint8_t opcode, size_t payloadLength);
 void hcp_handler_emergency(hcp_conn_t conn, uint8_t opcode, size_t payloadLength);
+void hcp_handler_st(hcp_conn_t conn, uint8_t opcode, size_t payloadLength);
 
 
 #endif /* HCP_HANDLER_H_ */
