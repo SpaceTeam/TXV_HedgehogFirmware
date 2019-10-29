@@ -1,6 +1,6 @@
-# HedgehogFirmware
+# TXV_HedgehogFirmware
 
-Firmware for the Hedgehog Educational Robotics Controller
+Firmware for the Hedgehog Educational Robotics Controller, modified for the TU Wien Space Team small scale rocket engine test stand
 
 ### Importing Project in Atollic TrueSTUDIO
 1. Copy/clone project into Workspace
