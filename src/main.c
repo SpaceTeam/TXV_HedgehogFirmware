@@ -10,6 +10,7 @@
 #include "uart.h"
 #include "hcp.h"
 #include "imu.h"
+#include "st.h"
 //#include <core_cm4.h>
 
 
@@ -45,6 +46,7 @@ int main()
 	digitalIO_init();
 	servo_init();
 	motor_init();
+	st_init();
 	uart_init();
 	hcp_init();
 
