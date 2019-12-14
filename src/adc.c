@@ -21,7 +21,8 @@ static gpio_pin_t pin_analog[ANALOG_COUNT] = {
 	{GPIOC, 1},
 	{GPIOC, 0}};
 
-static uint16_t analogData[ANALOG_COUNT] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+volatile static uint16_t analogData[ANALOG_COUNT] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+volatile static uint16_t analogDataRaw[ANALOG_COUNT] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 
 void adc_init()
@@ -75,7 +76,7 @@ void adc_init()
 	RCC->AHB1ENR |= RCC_AHB1ENR_DMA2EN; //DMA2 clock enabled
 	DMA2->LIFCR |= 0b111101; //clear all stream 0 interrupts
 	DMA2_Stream0->PAR = (uint32_t)&ADC1->DR; //adc1 data register as peripheral source
-	DMA2_Stream0->M0AR = (uint32_t)analogData; //data array as memory destination
+	DMA2_Stream0->M0AR = (uint32_t)analogDataRaw; //data array as memory destination
 	DMA2_Stream0->NDTR = 16; //16 data items
 	DMA2_Stream0->CR &= ~DMA_SxCR_CHSEL; //channel 0
 	DMA2_Stream0->CR |= DMA_SxCR_PL; //highest priority
@@ -83,9 +84,25 @@ void adc_init()
 	DMA2_Stream0->CR |= DMA_SxCR_PSIZE_0; //16bit peripheral data size
 	DMA2_Stream0->CR |= DMA_SxCR_MINC; //memory address is incremented by 2bytes after each transfer
 	DMA2_Stream0->CR |= DMA_SxCR_CIRC; //circular mode
+	DMA2_Stream0->CR |= DMA_SxCR_TCIE; //transfer complete interrupt enabled
+	NVIC_EnableIRQ(DMA2_Stream0_IRQn); //enable DMA2 global Interrupt
 	DMA2_Stream0->CR |= DMA_SxCR_EN; //stream enabled
 
 	ADC1->CR2 |= ADC_CR2_SWSTART; //start adc conversion
+}
+
+
+void DMA2_Stream0_IRQHandler(void)
+{
+	if(DMA2->LISR & DMA_LISR_TCIF0)
+	{
+		DMA2->LIFCR |= DMA_LIFCR_CTCIF0;
+		uint8_t i;
+		for(i=0; i<ANALOG_COUNT; i++)
+		{
+			analogData[i] -= (int16_t)(SMOOTHING_FACTOR * (float)((int16_t)analogData[i] - (int16_t)analogDataRaw[i]));
+		}
+	}
 }
 
 

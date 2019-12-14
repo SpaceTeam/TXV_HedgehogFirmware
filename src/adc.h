@@ -24,6 +24,8 @@
 	#error Defined HW_VERSION is not supported by this firmware!
 #endif
 
+#define SMOOTHING_FACTOR 0.3
+
 
 //init ADC for analog inputs and battery voltage
 void adc_init();
