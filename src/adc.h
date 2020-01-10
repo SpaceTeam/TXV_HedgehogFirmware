@@ -30,6 +30,8 @@
 //init ADC for analog inputs and battery voltage
 void adc_init();
 
+void adc_update(void);
+
 //returns 12bit (0-4095) analog input value, input: 0-15
 uint16_t adc_getAnalogInput(uint8_t input);
 

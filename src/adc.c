@@ -24,6 +24,7 @@ static gpio_pin_t pin_analog[ANALOG_COUNT] = {
 volatile static uint16_t analogData[ANALOG_COUNT] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 volatile static uint16_t analogDataRaw[ANALOG_COUNT] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
+volatile static bool updateFlag = false;
 
 void adc_init()
 {
@@ -97,11 +98,18 @@ void DMA2_Stream0_IRQHandler(void)
 	if(DMA2->LISR & DMA_LISR_TCIF0)
 	{
 		DMA2->LIFCR |= DMA_LIFCR_CTCIF0;
-		uint8_t i;
-		for(i=0; i<ANALOG_COUNT; i++)
-		{
-			analogData[i] -= (int16_t)(SMOOTHING_FACTOR * (float)((int16_t)analogData[i] - (int16_t)analogDataRaw[i]));
-		}
+		updateFlag = true;
+	}
+}
+
+void adc_update(void)
+{
+	if(!updateFlag) return;
+	updateFlag = false;
+	uint8_t i;
+	for(i=0; i<ANALOG_COUNT; i++)
+	{
+		analogData[i] -= (int16_t)(SMOOTHING_FACTOR * (float)((int16_t)analogData[i] - (int16_t)analogDataRaw[i]));
 	}
 }
 

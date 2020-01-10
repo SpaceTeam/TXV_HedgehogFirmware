@@ -60,6 +60,7 @@ int main()
 		if(rpi_was_active && (!power_getRPiActive())) break;
 
 		hcp_update();
+		adc_update();
 	}
 
 	led0(false);
