@@ -39,6 +39,11 @@ static gpio_pin_t pin_b[MOTOR_COUNT] = {
 	{GPIOC, 14},
 	{GPIOC, 15}};
 
+static gpio_pin_t fetOutput[4] = {
+	{GPIOB, 7},
+	{GPIOB, 6},
+	{GPIOA, 12},
+	{GPIOA, 11}};
 
 //motor configuration
 static motor_type_t type[MOTOR_COUNT] = {MOTOR_TYPE_DC, MOTOR_TYPE_DC, MOTOR_TYPE_DC, MOTOR_TYPE_DC}; //motor type
@@ -95,6 +100,8 @@ void motor_init()
 	TIM2->CR1 |= TIM_CR1_CEN; //enable timer
 	NVIC_EnableIRQ(TIM2_IRQn); //enable TIM2 global Interrupt
 	NVIC_SetPriority(TIM2_IRQn, 0); //highest interrupt priority
+
+	for(motor=0; motor<4; motor++) gpio_pinCfg(fetOutput[motor], MODE_OUT|OTYPE_PP|SPEED_LOW, 0);
 }
 
 
@@ -381,7 +388,15 @@ void motor_configure(uint8_t motor, motor_type_t motorType, uint8_t encoder_a, u
 
 void motor_set(uint8_t motor, motor_mode_t motorMode, int16_t power_velocity)
 {
-	if((motor >= MOTOR_COUNT) || (motorMode > 3)) return;
+	if((motor >= MOTOR_COUNT + 4) || (motorMode > 3)) return;
+
+	if(motor > 3)
+	{
+		if(power_velocity > 0) gpio_pinSet(fetOutput[motor - 3], true);
+		else gpio_pinSet(fetOutput[motor - 3], false);
+		return;
+	}
+
 	if(type[motor] == MOTOR_TYPE_DC && !(motorMode == MOTOR_MODE_POWER || motorMode == MOTOR_MODE_BRAKE)) return;
 	if(type[motor] == MOTOR_TYPE_STEP && motorMode == MOTOR_MODE_POWER && power_velocity != 0) return;
 	if(power_getEmergencyStop() && (power_velocity != 0)) return; //TODO: allow only power and brake with power_velocity=0

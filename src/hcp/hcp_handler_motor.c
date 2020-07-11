@@ -23,7 +23,7 @@ void hcp_handler_motor(hcp_conn_t conn, uint8_t opcode, size_t payloadLength) //
 		if(ringbuffer_pop(conn.rxBuffer, &pv_l)) return;
 		int16_t pv = (pv_h << 8) | pv_l;
 
-		if(port >= MOTOR_COUNT)
+		if(port >= MOTOR_COUNT + 4)
 		{
 			ringbuffer_push(conn.txBuffer, HCP_INVALID_PORT);
 			return;
