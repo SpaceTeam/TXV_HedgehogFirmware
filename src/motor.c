@@ -392,8 +392,8 @@ void motor_set(uint8_t motor, motor_mode_t motorMode, int16_t power_velocity)
 
 	if(motor > 3)
 	{
-		if(power_velocity > 0) gpio_pinSet(fetOutput[motor - 3], true);
-		else gpio_pinSet(fetOutput[motor - 3], false);
+		if(power_velocity > 0) gpio_pinSet(fetOutput[motor - 4], true);
+		else gpio_pinSet(fetOutput[motor - 4], false);
 		return;
 	}
 
