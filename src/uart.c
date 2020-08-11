@@ -24,7 +24,7 @@ void uart_init()
 	gpio_pinCfg(pinRxD, MODE_AF, 7);
 
 	RCC->APB2ENR |= RCC_APB2ENR_USART1EN; //enable UART1 clock (84MHz)
-	USART1->BRR = (22<<4) | 12;//Baudrate = 115200, 84MHz / (2 * 8 * 230400) = 22.786, 0.786 * 15 = ~12
+	USART1->BRR = (22<<4) | 13;//Baudrate = 115200, 84MHz / (2 * 8 * 230400) = 22.786, 0.786 * 16 = ~13
 	USART1->CR1 |= (USART_CR1_TCIE | USART_CR1_RXNEIE); //transmission complete & Rx not empty interrupts enable
 	USART1->CR1 |= (USART_CR1_TE | USART_CR1_RE); //enable Tx & Rx
 	NVIC_EnableIRQ(USART1_IRQn); //enable UART1 global interrupts
