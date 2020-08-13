@@ -128,8 +128,8 @@ void power_update()
 			if(button_pressed_timestamp == 0) //has just started being pressed
 			{
 				button_pressed_timestamp = systick_getUptime();
-				power_setEmergencyStop(true);
-				power_setEmergencyStopSendFlag(true);
+//				power_setEmergencyStop(true);
+//				power_setEmergencyStopSendFlag(true);
 			}
 			else
 			{
