@@ -55,7 +55,7 @@ void TIM1_BRK_TIM9_IRQHandler(void) //20kHz
 		{
 			if(gpio_pinGet(pin_clk_out)) //clock has been high --> read data, set low again
 			{
-				if(counter == 24) //done
+				if(counter == 25) //done
 				{
 					for(i=0; i<3; i++)
 					{
@@ -63,6 +63,10 @@ void TIM1_BRK_TIM9_IRQHandler(void) //20kHz
 						hx711_value_temp[i] = 0;
 					}
 					counter = -1;
+				}
+				else if(counter == 24) //nearly done
+				{
+					counter++;
 				}
 				else
 				{
