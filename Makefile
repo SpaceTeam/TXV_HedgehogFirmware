@@ -114,6 +114,13 @@ flash-stlink-openocd:
 	openocd -f interface/stlink-v2-1.cfg -f target/stm32f4x.cfg -c "init" -c "mdw 0x1FFF7A10 3" -c "exit"
 	@echo flash finished
 
+#start openocd for (remote) debugging
+debug-start:
+	openocd/remote_debug_start.sh
+	
+#restore normal config after debugging
+debug-stop:
+	openocd/remote_debug_stop.sh
 
 #shows size of .elf
 size: $(BUILDDIR)/$(PROJ_NAME).elf
