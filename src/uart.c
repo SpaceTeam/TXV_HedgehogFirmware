@@ -38,7 +38,7 @@ void uart_init()
 
 void USART1_IRQHandler(void)
 {
-	if(USART1->SR & USART_SR_TXE) //tx data register empty
+	if(USART1->SR & USART_SR_TXE) //tx data register empty TODO: also check for TXEIE enabled
 	{
 		if(ringbuffer_pop(&uart_tx_rb, (uint8_t*)(&USART1->DR)) == RB_ERROR_UNDERFLOW) //send data if more data to send available, clears TXE flag
 			USART1->CR1 &= ~USART_CR1_TXEIE; //no more data, transfer done --> disable TXE interrupt
@@ -46,9 +46,11 @@ void USART1_IRQHandler(void)
 
 	if(USART1->SR & USART_SR_RXNE) //Rx data register not empty
 	{
-		USART1->SR &= ~USART_SR_RXNE; //clear interrupt flag
-		ringbuffer_push(&uart_rx_rb, USART1->DR); //write new data to buffer TODO: add buffer overflow error
+		USART1->SR &= ~USART_SR_RXNE; //clear interrupt flag to make sure it is cleared even when rx_rb is full and data doesn't get read in line below
+		ringbuffer_push(&uart_rx_rb, USART1->DR); //write new data to buffer TODO: add buffer overflow error (some beep?)
 	}
+
+	//TODO: check for and clear ORE flag, error handling (some beep?)
 }
 
 
@@ -56,7 +58,7 @@ static void uart_startFifoTransmit()
 {
 	if(!(USART1->CR1 & USART_CR1_TXEIE)) //if TXE interrupt disabled --> no transfer in progress
 	{
-		ringbuffer_pop(&uart_tx_rb, (uint8_t*)(&USART1->DR)); //send first byte to start transmission TODO: add buffer underflow error
+		ringbuffer_pop(&uart_tx_rb, (uint8_t*)(&USART1->DR)); //send first byte to start transmission TODO: add buffer underflow error (some beep?)
 		USART1->CR1 |= USART_CR1_TXEIE; //enable TXE interrupt
 	}
 }

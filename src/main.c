@@ -83,5 +83,7 @@ int main()
 	powerLed(POWER_LED_MODE_OFF);
 	power_off();
 
+	while(1);
+
 	return 0;
 }
