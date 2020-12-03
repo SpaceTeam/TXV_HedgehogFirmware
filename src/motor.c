@@ -74,6 +74,9 @@ static uint16_t dutyCycle[MOTOR_COUNT] = {0, 0, 0, 0}; //0-MOTOR_MAX_POWER, anyt
 static uint8_t update_counter = 0;
 
 
+gpio_pin_t debugPinRxD = {GPIOA, 12}; //FIXME debug, remove
+
+
 void motor_init()
 {
 	//all motor pins to output
@@ -102,6 +105,8 @@ void motor_init()
 	NVIC_SetPriority(TIM2_IRQn, 0); //highest interrupt priority
 
 	for(motor=0; motor<4; motor++) gpio_pinCfg(fetOutput[motor], MODE_OUT|OTYPE_PP|SPEED_LOW, 0);
+
+	gpio_pinCfg(debugPinRxD, MODE_OUT|OTYPE_PP|SPEED_HIGH, 0); //FIXME debug, remove
 }
 
 
@@ -187,6 +192,8 @@ void motor_update(uint8_t motor)
 
 void TIM2_IRQHandler(void)
 {
+	gpio_pinSet(debugPinRxD, true); //FIXME debug, remove
+
 	if(TIM2->SR & TIM_SR_UIF) //counter overflow, start of pwm periods
 	{
 		TIM2->SR &= ~TIM_SR_UIF; //reset interrupt flag
@@ -257,6 +264,8 @@ void TIM2_IRQHandler(void)
 			gpio_pinSet(pin_b[3],false);
 		}
 	}
+
+	gpio_pinSet(debugPinRxD, false); //FIXME debug, remove
 }
 
 

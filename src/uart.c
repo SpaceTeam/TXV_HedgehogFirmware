@@ -39,11 +39,13 @@ void uart_init()
 
 	//FIXME debug, remove
 	gpio_pinCfg(debugPinTxD, MODE_OUT|OTYPE_PP|SPEED_HIGH, 0);
+//	gpio_pinCfg(debugPinRxD, MODE_OUT|OTYPE_PP|SPEED_HIGH, 0);
 }
 
 
 void USART1_IRQHandler(void)
 {
+	gpio_pinSet(debugPinTxD, true); //FIXME debug, remove
 
 	if(/*(USART1->CR1 & USART_CR1_TXEIE) && */(USART1->SR & USART_SR_TXE)) //tx data register empty FIXME uncomment
 	{
@@ -60,9 +62,10 @@ void USART1_IRQHandler(void)
 	if(USART1->SR & USART_SR_ORE) //overrun error //TODO: better error handling
 	{
 		speaker_setFrequency(1000);
-		//FIXME debug, remove
-		gpio_pinSet(debugPinTxD, !gpio_pinGet(debugPinTxD));
+//		gpio_pinSet(debugPinTxD, !gpio_pinGet(debugPinTxD)); //FIXME debug, remove
 	}
+
+	gpio_pinSet(debugPinTxD, false); //FIXME debug, remove
 }
 
 
