@@ -4,6 +4,7 @@
 #include "ringbuffer.h"
 #include "servo.h"
 #include "power.h"
+#include "st.h"
 
 
 void hcp_handler_servo(hcp_conn_t conn, uint8_t opcode, size_t payloadLength)
@@ -35,8 +36,16 @@ void hcp_handler_servo(hcp_conn_t conn, uint8_t opcode, size_t payloadLength)
 		return;
 	}
 
-	servo_setOntime(port, ontime);
-	servo_setEnabled(port, enabled);
+	if(port != 3)
+	{
+		servo_setOntime(port, ontime);
+		servo_setEnabled(port, enabled);
+	}
+	else
+	{
+		if(ontime < 1000) ontime = 1000;
+		st_setPressurethreshold(ontime - 1000);
+	}
 
 	ringbuffer_push(conn.txBuffer, HCP_OK);
 }

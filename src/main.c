@@ -70,6 +70,7 @@ int main()
 
 		hcp_update();
 		adc_update();
+		st_loop();
 	}
 
 	led0(false);

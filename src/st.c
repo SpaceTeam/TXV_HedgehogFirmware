@@ -1,12 +1,17 @@
 #include "st.h"
 #include <stm32f4xx.h>
 #include "gpio.h"
+#include <math.h>
+#include "servo.h"
+#include "adc.h"
+#include "systick.h"
 
 static const gpio_pin_t pin_clk_out = {GPIOB, 12};
 static const gpio_pin_t pin_dat_in[3] = {{GPIOB, 13}, {GPIOB, 15}, {GPIOB, 14}};
 
 static volatile int32_t hx711_value[3] = {0,0,0};
 
+static volatile bool pressureRegEnabled = true;
 
 void st_init(void)
 {
@@ -80,5 +85,70 @@ void TIM1_BRK_TIM9_IRQHandler(void) //20kHz
 				gpio_pinSet(pin_clk_out, true);
 			}
 		}
+	}
+}
+
+
+void st_setPressurethreshold(uint8_t threshold) // bar
+{
+	if(threshold > 50) pressureRegEnabled = false;
+	else pressureRegEnabled = true;
+}
+
+
+void st_loop(void)
+{
+	static uint32_t systick_last = 0;
+	static uint32_t systick_lastMovement = 0;
+	static float pressure_old = -100;
+	static float threshold = PRESSURE_THRESHOLD;
+
+	if(systick_getUptime() > systick_last) //1kHz
+	{
+		float dt = systick_getUptime() - systick_last; //time interval
+		systick_last = systick_getUptime(); //current time
+		static float valvePercentage = 1; //init valve percentage
+
+		float pressure = (float)adc_getAnalogInput(2) * 0.023497 - 8.74088; //get pressure in bar
+		static float filt_pressure = -100;
+		filt_pressure = filt_pressure * (0.999) + pressure * 0.001;
+		float dp = filt_pressure - pressure_old; //change in pressure
+	    float gradient = dp / dt; //change in pressure over time interval
+		static float gradient_filt = 0;
+		gradient_filt = gradient_filt * 0.99 + gradient * 0.01;
+		static uint16_t grad_pos_count = 0;
+		if(gradient_filt >= -0.001)
+		{
+			grad_pos_count++;
+		}
+		else
+		{
+			grad_pos_count = 0;
+		}
+		if(pressure > threshold && pressureRegEnabled) //if pressure too high and enabled
+		{
+			threshold = PRESSURE_THRESHOLD - PRESSURE_HYSTERESIS;
+			if(grad_pos_count > 100)
+			{
+				if(valvePercentage < 100.0)
+				{
+					valvePercentage += ((valvePercentage < 25.0) ? 0.1 : 0.02); //1 : ? to full open
+					systick_lastMovement = systick_last; //time stamp last movement
+				}
+			}
+		}
+		else // pressure < threshold or pressureRegEnabled = false
+		{
+			threshold = PRESSURE_THRESHOLD;
+			if(valvePercentage != 0)
+			{
+				valvePercentage = 0;
+				systick_lastMovement = systick_last;
+			}
+		}
+		servo_setOntime(3, (uint16_t)(900 + valvePercentage / 100.0 * 1050.0 + 0.5) * 2);
+
+		servo_setEnabled(3, (systick_lastMovement  + 2000 > systick_last)); //disable servo after 2seconds
+		pressure_old = filt_pressure; //set old pressure to current pressure
 	}
 }
