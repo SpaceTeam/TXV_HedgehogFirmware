@@ -89,8 +89,8 @@ void imu_init()
 
 	imu_data[0] = SPI4->DR; //read rx data to clear flag
 	SPI4->CR2 |= SPI_CR2_RXNEIE; //rx not empty interrupt enable
-	NVIC_EnableIRQ(SPI4_IRQn); //enable TIM2 global Interrupt
-	NVIC_SetPriority(SPI4_IRQn, 1); //second highest interrupt priority
+	NVIC_SetPriority(SPI4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 4));
+	NVIC_EnableIRQ(SPI4_IRQn); //enable SPI4 global Interrupt
 }
 
 

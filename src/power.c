@@ -61,7 +61,7 @@ bool power_getRegMsPG()
 	return gpio_pinGet(pin_pg_reg_ms);
 }
 
-bool power_getButtonState()
+inline bool power_getButtonState()
 {
 	return gpio_pinGet(pin_power_button_state);
 }
@@ -107,7 +107,7 @@ void power_setEmergencyStopSendFlag(bool state)
 	emergency_stop_send_flag = state;
 }
 
-battery_status_t power_getBatteryStatus()
+inline battery_status_t power_getBatteryStatus()
 {
 	return batteryStatus;
 }
@@ -118,7 +118,7 @@ uint16_t power_getInputVoltage_mV()
 }
 
 
-void power_update()
+inline void power_update()
 {
 	//power button monitoring
 	if(power_getButtonState()) //button is pressed

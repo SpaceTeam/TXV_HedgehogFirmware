@@ -92,7 +92,7 @@ void servo_setOntime(uint8_t servo, uint16_t ontime)
 	servo_update(servo);
 }
 
-void servo_allOff()
+inline void servo_allOff()
 {
 	servo_setEnabled(0, false);
 	servo_setEnabled(1, false);

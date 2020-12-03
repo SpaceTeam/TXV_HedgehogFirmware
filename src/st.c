@@ -23,8 +23,8 @@ void st_init(void)
 	TIM9->ARR = 49; //auto-reload value = 49 --> 20kHz interrupt frequency
 	TIM9->DIER |= (TIM_DIER_UIE); //overflow interrupt enable
 	TIM9->CR1 |= TIM_CR1_CEN; //enable timer
+	NVIC_SetPriority(TIM1_BRK_TIM9_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 3));
 	NVIC_EnableIRQ(TIM1_BRK_TIM9_IRQn); //enable TIM9 global Interrupt
-	NVIC_SetPriority(TIM1_BRK_TIM9_IRQn, 0); //interrupt priority
 }
 
 

@@ -119,8 +119,8 @@ void output_init()
 	TIM5->DIER |= (TIM_DIER_UIE | TIM_DIER_CC1IE); //overflow & ch1 compare interrupts enable
 	TIM5->CCR1 = 0; // duty cycle 0
 	TIM5->CR1 |= TIM_CR1_CEN; //enable timer
+	NVIC_SetPriority(TIM5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 2));
 	NVIC_EnableIRQ(TIM5_IRQn); //enable TIM5 global Interrupt
-	NVIC_SetPriority(TIM5_IRQn, 32); //interrupt priority
 }
 
 
@@ -141,7 +141,7 @@ void powerLed(uint8_t mode)
 }
 
 
-static void speaker(uint16_t frequency)
+inline static void speaker(uint16_t frequency)
 {
 	if((frequency < 50) || (frequency > 15000))
 	{

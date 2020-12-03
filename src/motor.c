@@ -98,14 +98,14 @@ void motor_init()
 	TIM2->CCR3 = dutyCycle[2]; //motor 2 dutyCycle 0-MOTOR_MAX_POWER
 	TIM2->CCR4 = dutyCycle[3]; //motor 3 dutyCycle 0-MOTOR_MAX_POWER
 	TIM2->CR1 |= TIM_CR1_CEN; //enable timer
+	NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 1));
 	NVIC_EnableIRQ(TIM2_IRQn); //enable TIM2 global Interrupt
-	NVIC_SetPriority(TIM2_IRQn, 0); //highest interrupt priority
 
 	for(motor=0; motor<4; motor++) gpio_pinCfg(fetOutput[motor], MODE_OUT|OTYPE_PP|SPEED_LOW, 0);
 }
 
 
-void motor_update(uint8_t motor)
+inline void motor_update(uint8_t motor)
 {
 	switch(type[motor])
 	{
@@ -260,7 +260,7 @@ void TIM2_IRQHandler(void)
 }
 
 
-void exti_handler(uint8_t pin) //TODO improve, use full resolution, filter velocity
+inline void exti_handler(uint8_t pin) //TODO improve, use full resolution, filter velocity
 {
 	uint8_t m = 0xFF;
 	if(pin == enc_in_a[0]) m = 0;
@@ -427,7 +427,7 @@ void motor_servo(uint8_t motor, int16_t velocity_max, bool relative, int32_t pos
 }
 
 
-void motor_allOff()
+inline void motor_allOff()
 {
 	motor_set(0, MOTOR_MODE_POWER, 0);
 	motor_set(1, MOTOR_MODE_POWER, 0);

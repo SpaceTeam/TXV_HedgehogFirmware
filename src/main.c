@@ -11,7 +11,6 @@
 #include "hcp.h"
 #include "imu.h"
 #include "st.h"
-//#include <core_cm4.h>
 
 
 #define SHUTDOWN_TIMEOUT 20
@@ -19,13 +18,23 @@
 
 bool rpi_was_active = false;
 
+//interrupt priorities (preemtive/sub):
+//uart 0/0
+//adc (filter update) 1/5
+//imu (spi) 1/4
+//digitalIO (ext. int) 1/0
+//motor (pwm) 1/1
+//output (led pwm) 1/2
+//st (thrust read) 1/3
+//systick 1/6
+
 //TODO: make some variables constant or volatile
 //TODO: use enums instead of defines for modes and status returns
 //TODO: error checking everywhere the ringbuffer functions are used
 //TODO: hcp handlers should use error codes from set-functions
 int main()
 {
-	//NVIC_SetPriorityGrouping(0); //TODO interrupt priorities
+	NVIC_SetPriorityGrouping(1);
 	systick_init();
 	gpio_init();
 	adc_init();
@@ -86,4 +95,11 @@ int main()
 	while(1);
 
 	return 0;
+}
+
+
+void HardFault_Handler(void)
+{
+	speaker_setFrequency(500);
+	while(1);
 }

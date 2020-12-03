@@ -86,6 +86,7 @@ void adc_init()
 	DMA2_Stream0->CR |= DMA_SxCR_MINC; //memory address is incremented by 2bytes after each transfer
 	DMA2_Stream0->CR |= DMA_SxCR_CIRC; //circular mode
 	DMA2_Stream0->CR |= DMA_SxCR_TCIE; //transfer complete interrupt enabled
+	NVIC_SetPriority(DMA2_Stream0_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 5));
 	NVIC_EnableIRQ(DMA2_Stream0_IRQn); //enable DMA2 global Interrupt
 	DMA2_Stream0->CR |= DMA_SxCR_EN; //stream enabled
 
@@ -121,7 +122,7 @@ uint16_t adc_getAnalogInput(uint8_t input)
 }
 
 
-uint16_t adc_getInputVoltage_mV()
+inline uint16_t adc_getInputVoltage_mV()
 {
 	uint16_t adc_value = ADC1->JDR1;
 

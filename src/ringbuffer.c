@@ -2,7 +2,7 @@
 #include <string.h>
 
 
-void memcopy(volatile uint8_t *dst, volatile uint8_t *src, size_t n)
+inline void memcopy(volatile uint8_t *dst, volatile uint8_t *src, size_t n)
 {
 	size_t i;
 	for(i=0; i<n; i++)
@@ -11,7 +11,7 @@ void memcopy(volatile uint8_t *dst, volatile uint8_t *src, size_t n)
 	}
 }
 
-rb_return_t ringbuffer_init(ringbuffer_t *rb, volatile uint8_t *buf, size_t bufSize, void (*startReadFunction)(void))
+inline rb_return_t ringbuffer_init(ringbuffer_t *rb, volatile uint8_t *buf, size_t bufSize, void (*startReadFunction)(void))
 {
 	if((bufSize - 1) & bufSize) return RB_ERROR_CONFIG;
 
@@ -25,18 +25,18 @@ rb_return_t ringbuffer_init(ringbuffer_t *rb, volatile uint8_t *buf, size_t bufS
 }
 
 
-size_t ringbuffer_getFree(ringbuffer_t *rb)
+inline size_t ringbuffer_getFree(ringbuffer_t *rb)
 {
 	return rb->size - ringbuffer_getFilled(rb);
 }
 
-size_t ringbuffer_getFilled(ringbuffer_t *rb)
+inline size_t ringbuffer_getFilled(ringbuffer_t *rb)
 {
 	return rb->head - rb->tail;
 }
 
 
-rb_return_t ringbuffer_push(ringbuffer_t *rb, uint8_t value)
+inline rb_return_t ringbuffer_push(ringbuffer_t *rb, uint8_t value)
 {
 	if(ringbuffer_getFree(rb) == 0) return RB_ERROR_OVERFLOW;
 
@@ -49,7 +49,7 @@ rb_return_t ringbuffer_push(ringbuffer_t *rb, uint8_t value)
 	return RB_SUCCESS;
 }
 
-rb_return_t ringbuffer_push_multiple(ringbuffer_t *rb, volatile uint8_t *data, size_t n)
+inline rb_return_t ringbuffer_push_multiple(ringbuffer_t *rb, volatile uint8_t *data, size_t n)
 {
 	if(ringbuffer_getFree(rb) < n) return RB_ERROR_OVERFLOW;
 
@@ -73,26 +73,26 @@ rb_return_t ringbuffer_push_multiple(ringbuffer_t *rb, volatile uint8_t *data, s
 }
 
 
-rb_return_t ringbuffer_peek(ringbuffer_t *rb, volatile uint8_t *data)
+inline rb_return_t ringbuffer_peek(ringbuffer_t *rb, volatile uint8_t *data)
 {
 	if(ringbuffer_getFilled(rb) == 0) return RB_ERROR_UNDERFLOW;
 	memcopy(data, &rb->buffer[TRUNC(rb->tail)], 1);
 	return RB_SUCCESS;
 }
 
-rb_return_t ringbuffer_peek_multiple(ringbuffer_t *rb, volatile uint8_t *data, size_t n)
+inline rb_return_t ringbuffer_peek_multiple(ringbuffer_t *rb, volatile uint8_t *data, size_t n)
 {
 	return ringbuffer_peek_at_multiple(rb, rb->tail, data, n);
 }
 
-rb_return_t ringbuffer_peek_at(ringbuffer_t *rb, size_t position, volatile uint8_t *data)
+inline rb_return_t ringbuffer_peek_at(ringbuffer_t *rb, size_t position, volatile uint8_t *data)
 {
 	if(!IS_BETWEEN(TRUNC(position), TRUNC(rb->tail), TRUNC(rb->head))) return RB_ERROR_UNDERFLOW; //position is not between tail and head
 	memcopy(data, &rb->buffer[TRUNC(position)], 1);
 	return RB_SUCCESS;
 }
 
-rb_return_t ringbuffer_peek_at_multiple(ringbuffer_t *rb, size_t position, volatile uint8_t *data, size_t n)
+inline rb_return_t ringbuffer_peek_at_multiple(ringbuffer_t *rb, size_t position, volatile uint8_t *data, size_t n)
 {
 	//if not all data is between tail and head
 	if(!IS_BETWEEN(TRUNC(position), TRUNC(rb->tail), TRUNC(rb->head))) return RB_ERROR_UNDERFLOW;
@@ -111,18 +111,18 @@ rb_return_t ringbuffer_peek_at_multiple(ringbuffer_t *rb, size_t position, volat
 	return RB_SUCCESS;
 }
 
-rb_return_t ringbuffer_peek_relative(ringbuffer_t *rb, size_t offset, volatile uint8_t *data)
+inline rb_return_t ringbuffer_peek_relative(ringbuffer_t *rb, size_t offset, volatile uint8_t *data)
 {
 	return ringbuffer_peek_at(rb, (rb->tail + offset), data);
 }
 
-rb_return_t ringbuffer_peek_relative_multiple(ringbuffer_t *rb, size_t offset, volatile uint8_t *data, size_t n)
+inline rb_return_t ringbuffer_peek_relative_multiple(ringbuffer_t *rb, size_t offset, volatile uint8_t *data, size_t n)
 {
 	return ringbuffer_peek_at_multiple(rb, rb->tail + offset, data, n);
 }
 
 
-rb_return_t ringbuffer_consume(ringbuffer_t *rb, size_t n)
+inline rb_return_t ringbuffer_consume(ringbuffer_t *rb, size_t n)
 {
 	if(ringbuffer_getFilled(rb) < n) return RB_ERROR_UNDERFLOW;
 	rb->tail += n;
@@ -130,14 +130,14 @@ rb_return_t ringbuffer_consume(ringbuffer_t *rb, size_t n)
 }
 
 
-rb_return_t ringbuffer_pop(ringbuffer_t *rb, volatile uint8_t *data)
+inline rb_return_t ringbuffer_pop(ringbuffer_t *rb, volatile uint8_t *data)
 {
 	uint8_t errcode = ringbuffer_peek(rb, data);
 	if(errcode != RB_SUCCESS) return errcode;
 	return ringbuffer_consume(rb, 1);
 }
 
-rb_return_t ringbuffer_pop_multiple(ringbuffer_t *rb, volatile uint8_t *data, size_t n)
+inline rb_return_t ringbuffer_pop_multiple(ringbuffer_t *rb, volatile uint8_t *data, size_t n)
 {
 	uint8_t errcode = ringbuffer_peek_multiple(rb, data, n);
 	if(errcode != RB_SUCCESS) return errcode;
@@ -145,12 +145,12 @@ rb_return_t ringbuffer_pop_multiple(ringbuffer_t *rb, volatile uint8_t *data, si
 }
 
 
-rb_return_t ringbuffer_peek_multiple_trans(ringbuffer_t *rb, ringbuffer_t *dst, size_t n)
+inline rb_return_t ringbuffer_peek_multiple_trans(ringbuffer_t *rb, ringbuffer_t *dst, size_t n)
 {
 	return ringbuffer_peek_at_multiple_trans(rb, rb->tail, dst, n);
 }
 
-rb_return_t ringbuffer_peek_at_multiple_trans(ringbuffer_t *rb, size_t position, ringbuffer_t *dst, size_t n)
+inline rb_return_t ringbuffer_peek_at_multiple_trans(ringbuffer_t *rb, size_t position, ringbuffer_t *dst, size_t n)
 {
 	//if not all data is between tail and head
 	if(!IS_BETWEEN(TRUNC(position), TRUNC(rb->tail), TRUNC(rb->head))) return RB_ERROR_UNDERFLOW;
@@ -174,12 +174,12 @@ rb_return_t ringbuffer_peek_at_multiple_trans(ringbuffer_t *rb, size_t position,
 	return RB_SUCCESS;
 }
 
-rb_return_t ringbuffer_peek_relative_multiple_trans(ringbuffer_t *rb, size_t offset, ringbuffer_t *dst, size_t n)
+inline rb_return_t ringbuffer_peek_relative_multiple_trans(ringbuffer_t *rb, size_t offset, ringbuffer_t *dst, size_t n)
 {
 	return ringbuffer_peek_at_multiple_trans(rb, rb->tail + offset, dst, n);
 }
 
-rb_return_t ringbuffer_pop_multiple_trans(ringbuffer_t *rb, ringbuffer_t *dst, size_t n)
+inline rb_return_t ringbuffer_pop_multiple_trans(ringbuffer_t *rb, ringbuffer_t *dst, size_t n)
 {
 	uint8_t errcode = ringbuffer_peek_multiple_trans(rb, dst, n);
 	if(errcode != RB_SUCCESS) return errcode;

@@ -38,14 +38,14 @@ void gpio_pinCfg(gpio_pin_t pin, gpio_cfg_t cfg, uint8_t af) //TODO: add paramet
 }
 
 
-void gpio_pinSet(gpio_pin_t pin, bool state)
+inline void gpio_pinSet(gpio_pin_t pin, bool state)
 {
 	if(state) pin.port->BSRR |= (1 << pin.pinNr);
 	else pin.port->BSRR |= (1 << (pin.pinNr + 16));
 }
 
 
-bool gpio_pinGet(gpio_pin_t pin)
+inline bool gpio_pinGet(gpio_pin_t pin)
 {
 	return pin.port->IDR & (1 << pin.pinNr);
 }
