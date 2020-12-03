@@ -1,5 +1,6 @@
 #include "uart.h"
 #include "gpio.h"
+#include "output.h"
 #include <stm32f4xx.h>
 
 
@@ -11,6 +12,8 @@ static ringbuffer_t uart_tx_rb;
 volatile static uint8_t rx_buffer[512];
 volatile static uint8_t tx_buffer[512];
 
+//FIXME debug, remove
+gpio_pin_t debugPinTxD = {GPIOA, 11};
 
 static void uart_startFifoTransmit();
 
@@ -33,12 +36,16 @@ void uart_init()
 	NVIC_EnableIRQ(USART1_IRQn); //enable UART1 global interrupts
 	NVIC_SetPriority(USART1_IRQn, 7); //medium interrupt priority
 	USART1->CR1 |= USART_CR1_UE; //enable UART
+
+	//FIXME debug, remove
+	gpio_pinCfg(debugPinTxD, MODE_OUT|OTYPE_PP|SPEED_HIGH, 0);
 }
 
 
 void USART1_IRQHandler(void)
 {
-	if(USART1->SR & USART_SR_TXE) //tx data register empty TODO: also check for TXEIE enabled
+
+	if(/*(USART1->CR1 & USART_CR1_TXEIE) && */(USART1->SR & USART_SR_TXE)) //tx data register empty FIXME uncomment
 	{
 		if(ringbuffer_pop(&uart_tx_rb, (uint8_t*)(&USART1->DR)) == RB_ERROR_UNDERFLOW) //send data if more data to send available, clears TXE flag
 			USART1->CR1 &= ~USART_CR1_TXEIE; //no more data, transfer done --> disable TXE interrupt
@@ -50,7 +57,12 @@ void USART1_IRQHandler(void)
 		ringbuffer_push(&uart_rx_rb, USART1->DR); //write new data to buffer TODO: add buffer overflow error (some beep?)
 	}
 
-	//TODO: check for and clear ORE flag, error handling (some beep?)
+	if(USART1->SR & USART_SR_ORE) //overrun error //TODO: better error handling
+	{
+		speaker_setFrequency(1000);
+		//FIXME debug, remove
+		gpio_pinSet(debugPinTxD, !gpio_pinGet(debugPinTxD));
+	}
 }
 
 

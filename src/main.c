@@ -25,7 +25,7 @@ bool rpi_was_active = false;
 //TODO: hcp handlers should use error codes from set-functions
 int main()
 {
-	//NVIC_SetPriorityGrouping(0); //TODO interrupt priorities
+	NVIC_SetPriorityGrouping(0); //TODO interrupt priorities
 	systick_init();
 	gpio_init();
 	adc_init();
@@ -86,4 +86,10 @@ int main()
 	while(1);
 
 	return 0;
+}
+
+void HardFault_Handler(void)
+{
+	speaker_setFrequency(500);
+	while(1);
 }
