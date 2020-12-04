@@ -11,8 +11,8 @@
 void uart_init();
 
 //get rx and tx ringbuffer pointers
-ringbuffer_t *uart_getRxRingbuffer();
-ringbuffer_t *uart_getTxRingbuffer();
+volatile ringbuffer_t *uart_getRxRingbuffer();
+volatile ringbuffer_t *uart_getTxRingbuffer();
 
 
 #endif /* UART_H_ */

@@ -7,8 +7,8 @@
 static const gpio_pin_t pinTxD = {GPIOA, 9};
 static const gpio_pin_t pinRxD = {GPIOA, 10};
 
-static ringbuffer_t uart_rx_rb;
-static ringbuffer_t uart_tx_rb;
+volatile static ringbuffer_t uart_rx_rb;
+volatile static ringbuffer_t uart_tx_rb;
 volatile static uint8_t rx_buffer[512];
 volatile static uint8_t tx_buffer[512];
 
@@ -37,45 +37,51 @@ void uart_init()
 }
 
 
-void USART1_IRQHandler(void) //TODO: better error handling
+void USART1_IRQHandler(void)
 {
 
-	if((USART1->CR1 & USART_CR1_TXEIE) && (USART1->SR & USART_SR_TXE)) //tx data register empty & interrupt enabled (i.e. transfer in progress)
+	if((USART1->CR1 & USART_CR1_TXEIE) && (USART1->SR & USART_SR_TXE)) //tx data register empty & interrupt enabled (i.e. transfer in progress or just started)
 	{
 		if(ringbuffer_pop(&uart_tx_rb, (uint8_t*)(&USART1->DR)) == RB_ERROR_UNDERFLOW) //send data if more data to send available, clears TXE flag
+		{
 			USART1->CR1 &= ~USART_CR1_TXEIE; //no more data, transfer done --> disable TXE interrupt
+		}
 	}
 
 	if(USART1->SR & USART_SR_RXNE) //Rx data register not empty
 	{
-		USART1->SR &= ~USART_SR_RXNE; //clear interrupt flag to make sure it is cleared even when rx_rb is full and data doesn't get read in line below
-		if(ringbuffer_push(&uart_rx_rb, USART1->DR) != RB_SUCCESS) speaker_setFrequency(2000); //write new data to buffer
+		if(ringbuffer_push(&uart_rx_rb, USART1->DR) == RB_ERROR_OVERFLOW) //write new data to buffer
+		{
+			USART1->SR &= ~USART_SR_RXNE; //clear interrupt flag as it might not have been cleared
+			speaker_setFrequency(2000);
+			//TODO: better error handling
+		}
 	}
 
 	if(USART1->SR & USART_SR_ORE) //overrun error
 	{
 		__attribute__ ((unused)) uint8_t data = USART1->DR; //this in combination with the read of SR clears the flag
 		speaker_setFrequency(1000);
+		//TODO: better error handling
 	}
 }
 
 
-static void uart_startFifoTransmit() //TODO: better error handling
+static void uart_startFifoTransmit()
 {
 	if(!(USART1->CR1 & USART_CR1_TXEIE)) //if TXE interrupt disabled --> no transfer in progress
 	{
-		if(ringbuffer_pop(&uart_tx_rb, (uint8_t*)(&USART1->DR)) != RB_SUCCESS) speaker_setFrequency(3000); //send first byte to start transmission FIXME happens often
-		USART1->CR1 |= USART_CR1_TXEIE; //enable TXE interrupt TODO: make this else, make sure it is called every time it is needed
+		USART1->CR1 |= USART_CR1_TXEIE; //enable TXE interrupt --> interrupt because TXE=1 --> transfer will start
 	}
 }
 
 
-ringbuffer_t *uart_getRxRingbuffer()
+volatile ringbuffer_t *uart_getRxRingbuffer()
 {
 	return &uart_rx_rb;
 }
 
-ringbuffer_t *uart_getTxRingbuffer()
+volatile ringbuffer_t *uart_getTxRingbuffer()
 {
 	return &uart_tx_rb;
 }
