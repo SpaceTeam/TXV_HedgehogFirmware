@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 
-#define PRESSURE_THRESHOLD 10.0
+#define PRESSURE_THRESHOLD 30.0
 #define PRESSURE_HYSTERESIS 1.0
 
 void st_init(void);
