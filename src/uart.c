@@ -64,8 +64,8 @@ static void uart_startFifoTransmit() //TODO: better error handling
 {
 	if(!(USART1->CR1 & USART_CR1_TXEIE)) //if TXE interrupt disabled --> no transfer in progress
 	{
-		if(ringbuffer_pop(&uart_tx_rb, (uint8_t*)(&USART1->DR)) != RB_SUCCESS) speaker_setFrequency(3000); //send first byte to start transmission
-		USART1->CR1 |= USART_CR1_TXEIE; //enable TXE interrupt
+		if(ringbuffer_pop(&uart_tx_rb, (uint8_t*)(&USART1->DR)) != RB_SUCCESS) speaker_setFrequency(3000); //send first byte to start transmission FIXME happens often
+		USART1->CR1 |= USART_CR1_TXEIE; //enable TXE interrupt TODO: make this else, make sure it is called every time it is needed
 	}
 }
 

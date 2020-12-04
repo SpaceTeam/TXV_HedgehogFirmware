@@ -10,7 +10,7 @@ static volatile uint64_t systick_count = 0;
 
 void systick_init()
 {
-	NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 6));
+	NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 7));
 	SysTick_Config(SystemCoreClock / 1000); //1ms period
 	systick_count = 0;
 }

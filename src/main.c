@@ -26,7 +26,7 @@ bool rpi_was_active = false;
 //motor (pwm) 1/1
 //output (led pwm) 1/2
 //st (thrust read) 1/3
-//systick 1/6
+//systick 1/7
 
 //TODO: make some variables constant or volatile
 //TODO: use enums instead of defines for modes and status returns

@@ -105,7 +105,7 @@ void motor_init()
 }
 
 
-inline void motor_update(uint8_t motor)
+static inline void motor_update(uint8_t motor)
 {
 	switch(type[motor])
 	{
@@ -260,7 +260,7 @@ void TIM2_IRQHandler(void)
 }
 
 
-inline void exti_handler(uint8_t pin) //TODO improve, use full resolution, filter velocity
+static inline void exti_handler(uint8_t pin) //TODO improve, use full resolution, filter velocity
 {
 	uint8_t m = 0xFF;
 	if(pin == enc_in_a[0]) m = 0;
