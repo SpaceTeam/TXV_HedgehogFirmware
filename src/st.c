@@ -91,7 +91,7 @@ void TIM1_BRK_TIM9_IRQHandler(void) //20kHz
 
 void st_setPressurethreshold(uint8_t threshold) // bar
 {
-	if(threshold > 50) pressureRegEnabled = false;
+	if(threshold > 100) pressureRegEnabled = false;
 	else pressureRegEnabled = true;
 }
 
