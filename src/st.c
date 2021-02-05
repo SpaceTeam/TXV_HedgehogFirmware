@@ -146,7 +146,7 @@ void st_loop(void)
 				systick_lastMovement = systick_last;
 			}
 		}
-		servo_setOntime(3, (uint16_t)(900 + valvePercentage / 100.0 * 1050.0 + 0.5) * 2);
+		servo_setOntime(3, (uint16_t)(1040 + valvePercentage / 100.0 * 950.0 + 0.5) * 2);
 
 		servo_setEnabled(3, (systick_lastMovement  + 2000 > systick_last)); //disable servo after 2seconds
 		pressure_old = filt_pressure; //set old pressure to current pressure
