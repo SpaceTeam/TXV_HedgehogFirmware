@@ -23,5 +23,17 @@ void hcp_handler_st(hcp_conn_t conn, uint8_t opcode, size_t payloadLength)
 		ringbuffer_push(conn.txBuffer, (uint8_t)(data[2] >> 8));
 		ringbuffer_push(conn.txBuffer, (uint8_t)(data[2] >> 0));
 	}
+	else if(opcode == HCP_ST_SUPERCHARGE_SET)
+	{
+		uint8_t threshold;
+		if(ringbuffer_pop(conn.rxBuffer, &threshold)) return;
+		uint8_t hysteresis;
+		if(ringbuffer_pop(conn.rxBuffer, &hysteresis)) return;
+
+		st_setPressurethreshold(threshold, hysteresis);
+		ringbuffer_push(conn.txBuffer, HCP_OK);
+	}
+
+
 	//TODO: else error handling
 }

@@ -13,6 +13,11 @@ static volatile int32_t hx711_value[3] = {0,0,0};
 
 static volatile bool pressureRegEnabled = true;
 
+static float pressureThreshold = PRESSURE_THRESHOLD;
+static float pressureHysteresis = PRESSURE_HYSTERESIS;
+
+
+
 void st_init(void)
 {
 	//3x HX711
@@ -30,6 +35,7 @@ void st_init(void)
 	TIM9->CR1 |= TIM_CR1_CEN; //enable timer
 	NVIC_SetPriority(TIM1_BRK_TIM9_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 3));
 	NVIC_EnableIRQ(TIM1_BRK_TIM9_IRQn); //enable TIM9 global Interrupt
+	st_setPressurethreshold(PRESSURE_THRESHOLD, PRESSURE_HYSTERESIS);
 }
 
 
@@ -89,10 +95,16 @@ void TIM1_BRK_TIM9_IRQHandler(void) //20kHz
 }
 
 
-void st_setPressurethreshold(uint8_t threshold) // bar
+
+void st_enablePressureControl(uint8_t enable)
 {
-	if(threshold > 100) pressureRegEnabled = false;
-	else pressureRegEnabled = true;
+	pressureRegEnabled = enable;
+}
+
+void st_setPressurethreshold(uint8_t threshold, uint8_t hysteresis) // bar, bar/10
+{
+	pressureThreshold = (float)threshold;
+	pressureHysteresis = (float)hysteresis / 10.0;
 }
 
 
@@ -101,7 +113,7 @@ void st_loop(void)
 	static uint32_t systick_last = 0;
 	static uint32_t systick_lastMovement = 0;
 	static float pressure_old = -100;
-	static float threshold = PRESSURE_THRESHOLD;
+	static float threshold;
 
 	if(systick_getUptime() > systick_last) //1kHz
 	{
@@ -127,7 +139,7 @@ void st_loop(void)
 		}
 		if(pressure > threshold && pressureRegEnabled) //if pressure too high and enabled
 		{
-			threshold = PRESSURE_THRESHOLD - PRESSURE_HYSTERESIS;
+			threshold = pressureThreshold - pressureHysteresis;
 			if(grad_pos_count > 100)
 			{
 				if(valvePercentage < 100.0)
@@ -139,7 +151,7 @@ void st_loop(void)
 		}
 		else // pressure < threshold or pressureRegEnabled = false
 		{
-			threshold = PRESSURE_THRESHOLD;
+			threshold = pressureThreshold;
 			if(valvePercentage != 0)
 			{
 				valvePercentage = 0;

@@ -10,7 +10,8 @@
 
 void st_init(void);
 int32_t st_getThrust(uint8_t i);
-void st_setPressurethreshold(uint8_t threshold); // bar
+void st_enablePressureControl(uint8_t enable);
+void st_setPressurethreshold(uint8_t threshold, uint8_t hysteresis); // bar, bar/10
 void st_loop(void);
 
 

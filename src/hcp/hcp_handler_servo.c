@@ -36,17 +36,13 @@ void hcp_handler_servo(hcp_conn_t conn, uint8_t opcode, size_t payloadLength)
 		return;
 	}
 
-	if(port != 3)
+	if(port == 3)
+		st_enablePressureControl(ontime > 2100);
+	else
 	{
 		servo_setOntime(port, ontime);
 		servo_setEnabled(port, enabled);
 	}
-	else // 2000-2200
-	{
-		if(ontime < 2000) ontime = 2000;
-		if(ontime > 2200) ontime = 2200;
-		st_setPressurethreshold(ontime - 2000); // 0-200
-	}
-
+	
 	ringbuffer_push(conn.txBuffer, HCP_OK);
 }
