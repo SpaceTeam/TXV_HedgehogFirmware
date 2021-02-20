@@ -36,7 +36,7 @@ void hcp_handler_servo(hcp_conn_t conn, uint8_t opcode, size_t payloadLength)
 		return;
 	}
 
-	if(port == 3)
+	if(port == 2)
 		st_enablePressureControl(ontime > 2100);
 	else
 	{

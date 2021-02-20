@@ -35,7 +35,7 @@ void st_init(void)
 	TIM9->CR1 |= TIM_CR1_CEN; //enable timer
 	NVIC_SetPriority(TIM1_BRK_TIM9_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 3));
 	NVIC_EnableIRQ(TIM1_BRK_TIM9_IRQn); //enable TIM9 global Interrupt
-	st_setPressurethreshold(PRESSURE_THRESHOLD, PRESSURE_HYSTERESIS);
+	st_setPressureThreshold(PRESSURE_THRESHOLD, PRESSURE_HYSTERESIS);
 }
 
 
@@ -101,10 +101,19 @@ void st_enablePressureControl(uint8_t enable)
 	pressureRegEnabled = enable;
 }
 
-void st_setPressurethreshold(uint8_t threshold, uint8_t hysteresis) // bar, bar/10
+void st_setPressureThreshold(uint8_t threshold, uint8_t hysteresis) // bar, bar/10
 {
 	pressureThreshold = (float)threshold;
 	pressureHysteresis = (float)hysteresis / 10.0;
+}
+
+uint8_t st_getPressureThreshold(void)
+{
+	return (uint8_t)(pressureThreshold);
+}
+uint8_t st_getPressureHysteresis(void)
+{
+	return (uint8_t)(pressureHysteresis * 10);
 }
 
 
@@ -158,9 +167,9 @@ void st_loop(void)
 				systick_lastMovement = systick_last;
 			}
 		}
-		servo_setOntime(3, (uint16_t)(1040 + valvePercentage / 100.0 * 950.0 + 0.5) * 2);
+		servo_setOntime(2, (uint16_t)(1040 + valvePercentage / 100.0 * 950.0 + 0.5) * 2);
 
-		servo_setEnabled(3, (systick_lastMovement  + 2000 > systick_last)); //disable servo after 2seconds
+		servo_setEnabled(2, (systick_lastMovement  + 2000 > systick_last)); //disable servo after 2seconds
 		pressure_old = filt_pressure; //set old pressure to current pressure
 	}
 }
