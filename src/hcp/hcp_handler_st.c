@@ -30,7 +30,7 @@ void hcp_handler_st(hcp_conn_t conn, uint8_t opcode, size_t payloadLength)
 		uint8_t hysteresis;
 		if(ringbuffer_pop(conn.rxBuffer, &hysteresis)) return;
 
-		st_setPressureThreshold(threshold, hysteresis);
+		st_setPressureThreshold((int8_t)threshold, hysteresis);
 		ringbuffer_push(conn.txBuffer, HCP_OK);
 	}
 	else if(opcode == HCP_ST_SUPERCHARGE_REQ)

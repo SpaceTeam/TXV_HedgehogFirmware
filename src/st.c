@@ -101,7 +101,7 @@ void st_enablePressureControl(uint8_t enable)
 	pressureRegEnabled = enable;
 }
 
-void st_setPressureThreshold(uint8_t threshold, uint8_t hysteresis) // bar, bar/10
+void st_setPressureThreshold(int8_t threshold, uint8_t hysteresis) // bar, bar/10
 {
 	pressureThreshold = (float)threshold;
 	pressureHysteresis = (float)hysteresis / 10.0;
